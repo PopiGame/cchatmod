@@ -1,10 +1,8 @@
 package net.cchat.cchatmod.mixins;
 
 import net.cchat.cchatmod.gui.chat.CChatModEvents;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
 import org.spongepowered.asm.mixin.Final;

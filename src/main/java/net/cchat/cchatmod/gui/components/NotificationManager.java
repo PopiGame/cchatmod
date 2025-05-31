@@ -14,10 +14,10 @@ public class NotificationManager {
         notificationQueue.offer(new Notification(message, 3.0f));
     }
 
-    public static void renderNotifications(GuiGraphics poseStack, Font font, float deltaTime) {
+    public static void renderNotifications(GuiGraphics graphics, Font font, float deltaTime) {
         int index = 0;
         for (Notification n : notificationQueue) {
-            n.render(poseStack, font, index);
+            n.render(graphics, font, index);
             index++;
         }
 

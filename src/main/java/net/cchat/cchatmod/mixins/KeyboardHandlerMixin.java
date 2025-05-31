@@ -2,9 +2,7 @@ package net.cchat.cchatmod.mixins;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.cchat.cchatmod.CChatMod;
-import net.cchat.cchatmod.api.TaskAPI;
 import net.cchat.cchatmod.core.ModKeyBindings;
-import net.cchat.cchatmod.data.tasks.TaskStatus;
 import net.cchat.cchatmod.gui.chat.CChatModEvents;
 import net.cchat.cchatmod.gui.screens.TaskScreen;
 import net.minecraft.Util;

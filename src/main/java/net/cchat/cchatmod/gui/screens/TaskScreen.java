@@ -3,7 +3,6 @@ package net.cchat.cchatmod.gui.screens;
 import net.cchat.cchatmod.data.tasks.Task;
 import net.cchat.cchatmod.data.tasks.TaskManager;
 import net.cchat.cchatmod.data.tasks.TaskStatus;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.cchat.cchatmod.gui.components.AnimatedButton;
 import net.cchat.cchatmod.gui.components.NotificationManager;
 import net.minecraft.client.gui.Font;
@@ -264,19 +263,19 @@ public class TaskScreen extends Screen {
         return 0.05f;
     }
 
-    private void drawRectOutline(GuiGraphics poseStack, int x1, int y1, int x2, int y2, int color) {
-        poseStack.fill(x1, y1, x2, y1 + 1, color);
-        poseStack.fill(x1, y2 - 1, x2, y2, color);
-        poseStack.fill(x1, y1, x1 + 1, y2, color);
-        poseStack.fill(x2 - 1, y1, x2, y2, color);
+    private void drawRectOutline(GuiGraphics graphics, int x1, int y1, int x2, int y2, int color) {
+        graphics.fill(x1, y1, x2, y1 + 1, color);
+        graphics.fill(x1, y2 - 1, x2, y2, color);
+        graphics.fill(x1, y1, x1 + 1, y2, color);
+        graphics.fill(x2 - 1, y1, x2, y2, color);
     }
 
-    private void drawStringWithShadow(GuiGraphics poseStack, Font font, String text, int x, int y, int color) {
-        poseStack.drawString(font, text, x, y, color, true);
+    private void drawStringWithShadow(GuiGraphics graphics, Font font, String text, int x, int y, int color) {
+        graphics.drawString(font, text, x, y, color, true);
     }
 
-    private void drawStringWithShadow(GuiGraphics poseStack, Font font, FormattedCharSequence text, int x, int y, int color) {
-        poseStack.drawString(font, text, x, y, color, true);
+    private void drawStringWithShadow(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int color) {
+        graphics.drawString(font, text, x, y, color, true);
     }
 
     @Override

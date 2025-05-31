@@ -167,7 +167,7 @@ public class ChatRenderer {
         return calculatePanelHeight(lines);
     }
 
-    private void drawFadeOverlay(GuiGraphics poseStack, int x, int messageTop, int width, int topBoundary, int fadeRegionHeight) {
+    private void drawFadeOverlay(GuiGraphics graphics, int x, int messageTop, int width, int topBoundary, int fadeRegionHeight) {
         RenderSystem.enableBlend();
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);

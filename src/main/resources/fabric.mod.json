@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "cchatmod",
   "version": "${version}",
-  "name": "CChat",
+  "name": "CChatMod",
   "description": "The chat mod. Created specifically for story maps by blagodieyoung (aka bytolme).",
   "authors": [
     "blagodieyoung",
@@ -13,7 +13,7 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "net.cchat.cchatmod.CChatMod"
+      "net.cchat.cchatmod.Init"
     ]
   },
   "mixins": [
