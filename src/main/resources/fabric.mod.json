@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "cchatmod",
+  "version": "${version}",
+  "name": "CChat",
+  "description": "The chat mod. Created specifically for story maps by blagodieyoung (aka bytolme).",
+  "authors": [
+    "blagodieyoung",
+    "MilesGlitch"
+  ],
+  "license": "All Rights Reserved",
+  "icon": "assets/cchat/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.cchat.cchatmod.CChatMod"
+    ]
+  },
+  "mixins": [
+    "mixins.cchatmod.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": ">=${fabric_version}",
+    "minecraft": "${minecraft_version}"
+  }
+}

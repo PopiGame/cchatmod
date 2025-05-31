@@ -5,8 +5,9 @@ import com.mojang.blaze3d.vertex.*;
 import net.cchat.cchatmod.gui.chat.ChatHistoryManager.ChatMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import org.lwjgl.opengl.GL11;
@@ -28,19 +29,19 @@ public class ChatRenderer {
         this.yOffset = yOffset;
     }
 
-    public void render(PoseStack poseStack, int screenWidth, int screenHeight, boolean isChatOpen, ChatHistoryManager chatHistoryManager) {
+    public void render(GuiGraphics poseStack, int screenWidth, int screenHeight, boolean isChatOpen, ChatHistoryManager chatHistoryManager) {
         if (minecraft.player != null && minecraft.player.isSleeping()) {
             return;
         }
 
         if (isChatOpen) {
-            poseStack.pushPose();
+            poseStack.pose().pushPose();
             ChatBackgroundRenderer.drawBackground(poseStack, screenWidth, screenHeight);
-            poseStack.popPose();
+            poseStack.pose().popPose();
         }
 
-        poseStack.pushPose();
-        poseStack.translate(0, 0, 100);
+        poseStack.pose().pushPose();
+        poseStack.pose().translate(0, 0, 100);
         long currentTick = chatHistoryManager.getCurrentTick();
         int maxWidth = (int) (screenWidth * chatWidthRatio);
         if (isChatOpen) {
@@ -48,10 +49,10 @@ public class ChatRenderer {
         } else if (chatHistoryManager.getCurrentMessage() != null && currentTick < chatHistoryManager.getMessageEndTick()) {
             renderMessage(poseStack, chatHistoryManager.getCurrentMessage(), screenWidth, screenHeight + yOffset, maxWidth);
         }
-        poseStack.popPose();
+        poseStack.pose().popPose();
     }
 
-    private void renderChatHistory(PoseStack poseStack, int screenWidth, int screenHeight, int maxWidth, ChatHistoryManager chatHistoryManager) {
+    private void renderChatHistory(GuiGraphics poseStack, int screenWidth, int screenHeight, int maxWidth, ChatHistoryManager chatHistoryManager) {
         int topBoundary = (int)(screenHeight * 0.12f);
         int bottomY = screenHeight + yOffset;
         int extraBottomMargin = 5;
@@ -104,7 +105,7 @@ public class ChatRenderer {
     }
 
 
-    private void renderMessage(PoseStack poseStack, ChatMessage message, int screenWidth, int yPosition, int maxWidth, int topBoundary) {
+    private void renderMessage(GuiGraphics poseStack, ChatMessage message, int screenWidth, int yPosition, int maxWidth, int topBoundary) {
         List<FormattedCharSequence> lines = font.split(message.getText(), maxWidth);
         int panelWidth = calculatePanelWidth(lines);
         int panelHeight = calculatePanelHeight(lines);
@@ -122,7 +123,7 @@ public class ChatRenderer {
         }
     }
 
-    private void renderMessage(PoseStack poseStack, ChatMessage message, int screenWidth, int yPosition, int maxWidth) {
+    private void renderMessage(GuiGraphics poseStack, ChatMessage message, int screenWidth, int yPosition, int maxWidth) {
         List<FormattedCharSequence> lines = font.split(message.getText(), maxWidth);
         int panelWidth = calculatePanelWidth(lines);
         int panelHeight = calculatePanelHeight(lines);
@@ -133,23 +134,22 @@ public class ChatRenderer {
         drawText(poseStack, lines, xPosition, yPosition, panelHeight);
     }
 
-    private void drawBackground(PoseStack poseStack, int xPosition, int yPosition, int width, int height) {
-        GuiComponent.fill(poseStack, xPosition - 2, yPosition - height - 2, xPosition + width + 2, yPosition + 2, 0x80000000);
+    private void drawBackground(GuiGraphics poseStack, int xPosition, int yPosition, int width, int height) {
+        poseStack.fill(xPosition - 2, yPosition - height - 2, xPosition + width + 2, yPosition + 2, 0x80000000);
     }
 
-    private void drawIcon(PoseStack poseStack, ResourceLocation icon, int xPosition, int yPosition, int panelHeight) {
+    private void drawIcon(GuiGraphics poseStack, ResourceLocation icon, int xPosition, int yPosition, int panelHeight) {
         int iconX = xPosition + 5;
         int iconY = yPosition - panelHeight + (panelHeight - 16) / 2;
-        RenderSystem.setShaderTexture(0, icon);
-        GuiComponent.blit(poseStack, iconX, iconY, 0, 0, 16, 16, 16, 16);
+        poseStack.blit(RenderType::guiTextured, icon, iconX, iconY, 0, 0, 16, 16, 16, 16);
     }
 
-    private void drawText(PoseStack poseStack, List<FormattedCharSequence> lines, int xPosition, int yPosition, int panelHeight) {
+    private void drawText(GuiGraphics poseStack, List<FormattedCharSequence> lines, int xPosition, int yPosition, int panelHeight) {
         int textX = xPosition + 27;
         int totalTextHeight = lines.size() * 12;
         int textY = yPosition - panelHeight + (panelHeight - totalTextHeight) / 2 + 2;
         for (FormattedCharSequence line : lines) {
-            font.draw(poseStack, line, textX, textY, -1);
+            poseStack.drawString(font, line, textX, textY, -1);
             textY += 12;
         }
     }
@@ -167,23 +167,23 @@ public class ChatRenderer {
         return calculatePanelHeight(lines);
     }
 
-    private void drawFadeOverlay(PoseStack poseStack, int x, int messageTop, int width, int topBoundary, int fadeRegionHeight) {
+    private void drawFadeOverlay(GuiGraphics poseStack, int x, int messageTop, int width, int topBoundary, int fadeRegionHeight) {
         RenderSystem.enableBlend();
-        RenderSystem.disableTexture();
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         float maxAlpha = 0.8f;
         float yTop = messageTop;
         float yBottom = messageTop + fadeRegionHeight;
 
-        buffer.vertex(x, yTop, 0).color(0, 0, 0, maxAlpha).endVertex();
-        buffer.vertex(x + width, yTop, 0).color(0, 0, 0, maxAlpha).endVertex();
-        buffer.vertex(x + width, yBottom, 0).color(0, 0, 0, 0f).endVertex();
-        buffer.vertex(x, yBottom, 0).color(0, 0, 0, 0f).endVertex();
-        tessellator.end();
-        RenderSystem.enableTexture();
+        buffer.addVertex(x, yTop, 0).setColor(0, 0, 0, maxAlpha);
+        buffer.addVertex(x + width, yTop, 0).setColor(0, 0, 0, maxAlpha);
+        buffer.addVertex(x + width, yBottom, 0).setColor(0, 0, 0, 0f);
+        buffer.addVertex(x, yBottom, 0).setColor(0, 0, 0, 0f);
         RenderSystem.disableBlend();
+
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        BufferUploader.draw(buffer.buildOrThrow());
     }
 }

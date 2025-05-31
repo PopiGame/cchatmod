@@ -1,7 +1,7 @@
 package net.cchat.cchatmod.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class Notification {
     private final String message;
@@ -34,7 +34,7 @@ public class Notification {
         return getProgress() >= 1.0f;
     }
 
-    public void render(PoseStack poseStack, Font font, int index) {
+    public void render(GuiGraphics poseStack, Font font, int index) {
         float progress = getProgress();
         int currentY = START_Y + (int) ((END_Y - START_Y) * progress) + index * (font.lineHeight + SPACING);
 
@@ -49,6 +49,6 @@ public class Notification {
         }
 
         int textColor = (alpha << 24) | 0xFFFFFF;
-        font.drawShadow(poseStack, message, 10, currentY, textColor);
+        poseStack.drawString(font, message, 10, currentY, textColor,true);
     }
 }

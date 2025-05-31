@@ -17,7 +17,7 @@ public class ChatListenerMixin {
     private void onHandleSystemMessage(Component message, boolean overlay, CallbackInfo ci) {
         if (!overlay) {
             CChatModEvents.getInstance().addMessage(message.getString(),
-                    new ResourceLocation(MOD_ID, "textures/gui/system_icon.png"));
+                    ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/system_icon.png"));
             ci.cancel();
         }
     }

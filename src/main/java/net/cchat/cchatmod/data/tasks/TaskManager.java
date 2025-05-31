@@ -2,7 +2,7 @@ package net.cchat.cchatmod.data.tasks;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -14,16 +14,10 @@ import java.util.List;
 public class TaskManager {
     private List<Task> tasks;
     private static final Gson gson = new Gson();
-    private static final Path SAVE_PATH = FMLPaths.GAMEDIR.get().resolve("config/cchatmod/tasks.json");
+    private static final Path SAVE_PATH = FabricLoader.getInstance().getConfigDir().resolve("cchatmod/tasks.json");
 
     public TaskManager() {
         tasks = new ArrayList<>();
-        // Пример (тестовое задание)
-        /*if (tasks.isEmpty()) {
-            Task sample = new Task("Пример задания", "Описание задания", "Автор задания");
-            sample.addObjective("Собрать 10 яблок");
-            tasks.add(sample);
-        }*/
     }
 
     public void addTask(Task task) {

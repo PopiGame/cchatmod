@@ -1,7 +1,7 @@
 package net.cchat.cchatmod.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,11 +14,9 @@ public class NotificationManager {
         notificationQueue.offer(new Notification(message, 3.0f));
     }
 
-    public static void renderNotifications(PoseStack poseStack, Font font, float deltaTime) {
+    public static void renderNotifications(GuiGraphics poseStack, Font font, float deltaTime) {
         int index = 0;
-        Iterator<Notification> it = notificationQueue.iterator();
-        while (it.hasNext()) {
-            Notification n = it.next();
+        for (Notification n : notificationQueue) {
             n.render(poseStack, font, index);
             index++;
         }

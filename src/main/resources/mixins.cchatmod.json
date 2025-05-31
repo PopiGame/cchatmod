@@ -1,15 +1,20 @@
 {
   "required": true,
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "package": "net.cchat.cchatmod.mixins",
-  "refmap": "mixins.cchatmod.refmap.json",
   "mixins": [
-    "ChatSystemMixin",
+    "ChatEnterMixin",
     "ChatListenerMixin",
-    "ChatEnterMixin"
+    "ChatSystemMixin",
+    "ServerGamePacketListenerImplMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "GuiMixin",
+    "KeyboardHandlerMixin",
+    "MinecraftMixin"
+  ]
 }

@@ -6,16 +6,17 @@ import net.minecraft.client.gui.screens.ChatScreen;
 public class CustomChatScreen extends ChatScreen {
     private final CChatModEvents chatModEvents;
 
-    public CustomChatScreen(String p_95579_, CChatModEvents chatModEvents) {
-        super(p_95579_);
+    public CustomChatScreen(String initial, CChatModEvents chatModEvents) {
+        super(initial);
         this.chatModEvents = chatModEvents;
     }
+
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (delta != 0) {
-            chatModEvents.adjustScrollOffset((int) delta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (scrollY != 0) {
+            chatModEvents.adjustScrollOffset((int) scrollY);
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 }

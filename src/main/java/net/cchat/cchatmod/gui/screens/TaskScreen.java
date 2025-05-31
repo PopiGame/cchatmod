@@ -6,7 +6,10 @@ import net.cchat.cchatmod.data.tasks.TaskStatus;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.cchat.cchatmod.gui.components.AnimatedButton;
 import net.cchat.cchatmod.gui.components.NotificationManager;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -40,13 +43,13 @@ public class TaskScreen extends Screen {
     private AnimatedButton completedTabButton;
     private AnimatedButton failedTabButton;
 
-    private ResourceLocation taskPanelTexture;
+    private final ResourceLocation taskPanelTexture;
     private int scrollOffset = 0;
 
     public TaskScreen(TaskManager taskManager) {
         super(Component.literal("Меню заданий"));
         this.taskManager = taskManager;
-        this.taskPanelTexture = new ResourceLocation(MOD_ID, "textures/gui/task.png");
+        this.taskPanelTexture = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/task.png");
     }
 
     @Override
@@ -72,7 +75,7 @@ public class TaskScreen extends Screen {
                     detailAnimationProgress = 0.0f;
                     accentAnimationProgress = 0.0f;
                 },
-                new ResourceLocation(MOD_ID, "textures/gui/button_active.png")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/button_active.png")
         );
         completedTabButton = new AnimatedButton(
                 tab2X,
@@ -86,7 +89,7 @@ public class TaskScreen extends Screen {
                     detailAnimationProgress = 0.0f;
                     accentAnimationProgress = 0.0f;
                 },
-                new ResourceLocation(MOD_ID, "textures/gui/button_completed.png")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/button_completed.png")
         );
         failedTabButton = new AnimatedButton(
                 tab3X,
@@ -100,7 +103,7 @@ public class TaskScreen extends Screen {
                     detailAnimationProgress = 0.0f;
                     accentAnimationProgress = 0.0f;
                 },
-                new ResourceLocation(MOD_ID, "textures/gui/button_failed.png")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/button_failed.png")
         );
 
         this.addRenderableWidget(activeTabButton);
@@ -109,7 +112,9 @@ public class TaskScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+
         activeTabButton.setActive(currentStatus == TaskStatus.ACTIVE);
         completedTabButton.setActive(currentStatus == TaskStatus.COMPLETED);
         failedTabButton.setActive(currentStatus == TaskStatus.FAILED);
@@ -117,8 +122,8 @@ public class TaskScreen extends Screen {
         int leftPanelWidth = this.width / 4;
         int rightPanelX = leftPanelWidth;
 
-        Screen.fill(poseStack, 0, 0, leftPanelWidth, this.height, COLOR_LEFT_PANEL);
-        Screen.fill(poseStack, rightPanelX, 0, this.width, this.height, COLOR_RIGHT_PANEL);
+        guiGraphics.fill(0, 0, leftPanelWidth, this.height, COLOR_LEFT_PANEL);
+        guiGraphics.fill(rightPanelX, 0, this.width, this.height, COLOR_RIGHT_PANEL);
 
         int tabButtonSize = (int) Math.min((leftPanelWidth / 3) * 0.8, MAX_TAB_BUTTON_SIZE);
         int listStartY = PANEL_PADDING + tabButtonSize + 10;
@@ -138,8 +143,7 @@ public class TaskScreen extends Screen {
             Task task = tasks.get(i);
             int taskPanelY = listStartY + i * (taskDrawHeight + TASK_VERTICAL_SPACING);
 
-            RenderSystem.setShaderTexture(0, taskPanelTexture);
-            blit(poseStack, taskPanelX, taskPanelY, 0, 0, taskDrawWidth, taskDrawHeight, taskDrawWidth, taskDrawHeight);
+            guiGraphics.blit(RenderType::guiTextured, taskPanelTexture, taskPanelX, taskPanelY, 0, 0, taskDrawWidth, taskDrawHeight, taskDrawWidth, taskDrawHeight);
 
             int maxTextWidth = taskDrawWidth - 10;
             String title = task.getTitle();
@@ -155,13 +159,13 @@ public class TaskScreen extends Screen {
             int textStartY = taskPanelY + (taskDrawHeight - totalTextHeight) / 2;
             int textCenterX = taskPanelX + taskDrawWidth / 2;
 
-            drawCenteredString(poseStack, font, title, textCenterX, textStartY, COLOR_TEXT);
-            drawCenteredString(poseStack, font, author, textCenterX, textStartY + font.lineHeight + 2, 0xFFAAAAAA);
+            guiGraphics.drawCenteredString(font, title, textCenterX, textStartY, COLOR_TEXT);
+            guiGraphics.drawCenteredString(font, author, textCenterX, textStartY + font.lineHeight + 2, 0xFFAAAAAA);
 
             if (selectedTask == task) {
                 accentAnimationProgress = Math.min(1.0f, accentAnimationProgress + 0.05f);
                 int borderOffset = (int) (2 * accentAnimationProgress);
-                drawRectOutline(poseStack,
+                drawRectOutline(guiGraphics,
                         taskPanelX - borderOffset,
                         taskPanelY - borderOffset,
                         taskPanelX + taskDrawWidth + borderOffset,
@@ -172,7 +176,7 @@ public class TaskScreen extends Screen {
 
         if (selectedTask == null) {
             int rightPanelWidth = this.width - rightPanelX;
-            drawCenteredString(poseStack, font, "Нажмите на задание для просмотра деталей",
+            guiGraphics.drawCenteredString(font, "Нажмите на задание для просмотра деталей",
                     rightPanelX + rightPanelWidth / 2, this.height / 2, COLOR_TEXT);
         } else {
             if (detailAnimationProgress < 1.0f) {
@@ -187,19 +191,17 @@ public class TaskScreen extends Screen {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
 
-            ResourceLocation chatTop = new ResourceLocation(MOD_ID, "textures/gui/chat_background_up2.png");
-            RenderSystem.setShaderTexture(0, chatTop);
-            blit(poseStack, detailX, offsetY, 0, 0, detailWidth, 20, detailWidth, 20);
+            ResourceLocation chatTop = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/chat_background_up2.png");
+            guiGraphics.blit(RenderType::guiTextured, chatTop, detailX, offsetY, 0, 0, detailWidth, 20, detailWidth, 20);
 
-            ResourceLocation chatBottom = new ResourceLocation(MOD_ID, "textures/gui/chat_background_down2.png");
-            RenderSystem.setShaderTexture(0, chatBottom);
-            blit(poseStack, detailX, offsetY + detailHeight - 20, 0, 0, detailWidth, 20, detailWidth, 20);
+            ResourceLocation chatBottom = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/chat_background_down2.png");
+            guiGraphics.blit(RenderType::guiTextured, chatBottom, detailX, offsetY + detailHeight - 20, 0, 0, detailWidth, 20, detailWidth, 20);
 
             int fillMargin = 10;
             int fillX1 = detailX + fillMargin;
             int fillX2 = detailX + detailWidth - fillMargin;
             int fillWidth = fillX2 - fillX1;
-            fillTransparent(poseStack, fillX1, offsetY + 20, fillX2, offsetY + detailHeight - 20, 0x70000000);
+            fillTransparent(guiGraphics, fillX1, offsetY + 20, fillX2, offsetY + detailHeight - 20, 0x70000000);
             RenderSystem.disableBlend();
 
             int topTextureHeight = 20;
@@ -222,40 +224,39 @@ public class TaskScreen extends Screen {
             if (font.width(title) > maxTextWidth) {
                 title = font.plainSubstrByWidth(title, maxTextWidth - font.width("...")) + "...";
             }
-            drawCenteredString(poseStack, font, title, fillX1 + fillWidth / 2, currentY, COLOR_TEXT);
+            guiGraphics.drawCenteredString(font, title, fillX1 + fillWidth / 2, currentY, COLOR_TEXT);
             currentY += font.lineHeight + 5;
 
-            drawStringWithShadow(poseStack, font, "Цели:", fillX1 + 10, currentY, COLOR_TEXT);
+            drawStringWithShadow(guiGraphics, font, "Цели:", fillX1 + 10, currentY, COLOR_TEXT);
             currentY += font.lineHeight + 2;
             for (String obj : selectedTask.getObjectives()) {
                 List<FormattedCharSequence> wrappedObj = font.split(Component.literal("- " + obj), maxTextWidth);
                 for (FormattedCharSequence line : wrappedObj) {
-                    drawStringWithShadow(poseStack, font, line, fillX1 + 20, currentY, 0xFFCCCCCC);
+                    drawStringWithShadow(guiGraphics, font, line, fillX1 + 20, currentY, 0xFFCCCCCC);
                     currentY += font.lineHeight + 2;
                 }
             }
             currentY += 5;
 
-            drawStringWithShadow(poseStack, font, "Описание:", fillX1 + 10, currentY, COLOR_TEXT);
+            drawStringWithShadow(guiGraphics, font, "Описание:", fillX1 + 10, currentY, COLOR_TEXT);
             currentY += font.lineHeight + 2;
             String[] paragraphs = selectedTask.getDescription().split("\n");
             for (String paragraph : paragraphs) {
                 List<FormattedCharSequence> wrappedLines = font.split(Component.literal(paragraph), maxTextWidth);
                 for (FormattedCharSequence textLine : wrappedLines) {
-                    drawStringWithShadow(poseStack, font, textLine, fillX1 + 20, currentY, 0xFFCCCCCC);
+                    drawStringWithShadow(guiGraphics, font, textLine, fillX1 + 20, currentY, 0xFFCCCCCC);
                     currentY += font.lineHeight + 2;
                 }
             }
             RenderSystem.disableScissor();
         }
-        NotificationManager.renderNotifications(poseStack, font, eventDeltaTime(partialTick));
-        super.render(poseStack, mouseX, mouseY, partialTick);
+        NotificationManager.renderNotifications(guiGraphics, font, eventDeltaTime(partialTick));
     }
 
-    private void fillTransparent(PoseStack poseStack, int x1, int y1, int x2, int y2, int color) {
+    private void fillTransparent(GuiGraphics poseStack, int x1, int y1, int x2, int y2, int color) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        Screen.fill(poseStack, x1, y1, x2, y2, color);
+        poseStack.fill(x1, y1, x2, y2, color);
         RenderSystem.disableBlend();
     }
 
@@ -263,19 +264,19 @@ public class TaskScreen extends Screen {
         return 0.05f;
     }
 
-    private void drawRectOutline(PoseStack poseStack, int x1, int y1, int x2, int y2, int color) {
-        Screen.fill(poseStack, x1, y1, x2, y1 + 1, color);
-        Screen.fill(poseStack, x1, y2 - 1, x2, y2, color);
-        Screen.fill(poseStack, x1, y1, x1 + 1, y2, color);
-        Screen.fill(poseStack, x2 - 1, y1, x2, y2, color);
+    private void drawRectOutline(GuiGraphics poseStack, int x1, int y1, int x2, int y2, int color) {
+        poseStack.fill(x1, y1, x2, y1 + 1, color);
+        poseStack.fill(x1, y2 - 1, x2, y2, color);
+        poseStack.fill(x1, y1, x1 + 1, y2, color);
+        poseStack.fill(x2 - 1, y1, x2, y2, color);
     }
 
-    private void drawStringWithShadow(PoseStack poseStack, net.minecraft.client.gui.Font font, String text, int x, int y, int color) {
-        font.drawShadow(poseStack, text, x, y, color);
+    private void drawStringWithShadow(GuiGraphics poseStack, Font font, String text, int x, int y, int color) {
+        poseStack.drawString(font, text, x, y, color, true);
     }
 
-    private void drawStringWithShadow(PoseStack poseStack, net.minecraft.client.gui.Font font, FormattedCharSequence text, int x, int y, int color) {
-        font.drawShadow(poseStack, text, x, y, color);
+    private void drawStringWithShadow(GuiGraphics poseStack, Font font, FormattedCharSequence text, int x, int y, int color) {
+        poseStack.drawString(font, text, x, y, color, true);
     }
 
     @Override
@@ -307,9 +308,9 @@ public class TaskScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (selectedTask != null) {
-            scrollOffset -= (int) (delta * 10);
+            scrollOffset -= (int) (scrollY * 10);
             if (scrollOffset < 0) {
                 scrollOffset = 0;
             }
@@ -351,7 +352,7 @@ public class TaskScreen extends Screen {
             }
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
