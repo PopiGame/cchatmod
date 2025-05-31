@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("fabric-loom") version "1.10-SNAPSHOT"
+    `maven-publish`
 }
 
 group = "dev.popigame.cchatmod"
@@ -28,8 +29,18 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 java {
+    withSourcesJar()
+
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
 }
 
 tasks {
