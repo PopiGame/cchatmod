@@ -3,8 +3,8 @@ plugins {
     id("fabric-loom") version "1.10-SNAPSHOT"
 }
 
-group = "net.cchat.cchatmod"
-version = "1.2.0"
+group = "dev.popigame.cchatmod"
+version = "1.3.0"
 
 repositories {
     maven("https://maven.parchmentmc.org/")
